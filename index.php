@@ -1,6 +1,8 @@
 <?php
 include 'dict.php'; // array called $dictionary.
 
+$spell_check_base_url="http://localhost:8888/spell-check/index.php?p=";
+
 $url=$_GET["p"];
 
 $page = file_get_contents ($url);
@@ -15,9 +17,12 @@ $lines=explode("\n",$page);
 
 foreach ($lines as &$line) {
 	
-	//if(substr($line,0,2)=="<a"){
-	//	echo "link";
-	//}
+	if(substr($line,0,3)=="<a "){
+		if(!strstr($line,'href="http')){	
+			$line = str_replace('href="','note="relative-link" href="'.$url.'',$line);
+		}
+		$line = str_replace('href="','href="'.$spell_check_base_url,$line);
+	}
 	
 	if($line[0]!="<"&&substr($line,0,3)!="-->"){
 		$words=explode(" ",$line);
@@ -40,7 +45,7 @@ function clean_word($word){
 	
 	$clean_word=strtoupper($word); //make string uppercase
 	$clean_word=trim($clean_word); //remove leading/trailing whitespace
-	if(!ctype_alnum(substr($clean_word,-2,1))&&substr($clean_word,-1,1)=="S"){//if word has apostophie and a 's' (ie university's) drop those charecters
+	if(!ctype_alnum(substr($clean_word,-2,1))&&substr($clean_word,-1,1)=="S"){//if word has apostophie and a 's' (ie your's) drop those charecters
 		$clean_word=substr($clean_word,0,-2);			
 	}
 	$clean_word=html_entity_decode($clean_word); //decode the html encoded stuff to regular letters (ie &nbsp; to " ")
