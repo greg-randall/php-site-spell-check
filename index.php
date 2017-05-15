@@ -7,6 +7,8 @@ $url=$_GET["p"]; // gets the page passed through the url
 
 $page = file_get_contents ($url); //gets the requested url
 
+$script=false; //remeber's if we're in a seciton of script or style and ignores it
+
 //this is a little bit of a goofy way to do this but it works
 //basically we want all the text on their own lines and all the html stuff on their own lines
 //with one html item per line
@@ -21,19 +23,38 @@ foreach ($lines as &$line) {//go through each line one at a time
 	
 	$line=preg_replace('#(href|src)="([^:"]*)(?:")#',"$1=\"$url/$2\"",$line); //make all relataive links absolute
 	
-	//if a line stars with a less than it's a line of text
-	if($line[0]!="<"&&substr($line,0,3)!="-->"){
+	
+	//the next two if statments ignore stuff between style or script tags
+	if(substr($line,0,7)=="<script"|substr($line,0,6)=="<style"){
+		$script=true;
+	}
+	if(substr($line,0,9)=="</script>"|substr($line,0,8)=="</style>"){
+		$script=false;
+	}
+	
+	//if a line doesnt start with a less than it's a line of text, also make sure we're not in a script
+	if($line[0]!="<"&&substr($line,0,3)!="-->"&&$script==false){
 		$words=explode(" ",$line);//spit the line into an array of words
 		foreach ($words as &$word) {//look at each word in turn
-			if(isset($dict[clean_word($word)])|clean_word($word)==""){//see if the word is contained in the dictonary and make sure the word isn't blank (we need to clean the word before we can see if it's in the dictonary)
+			if(isset($dict[clean_word($word)])|clean_word($word)==""|clean_word($word)=="NBSP"){//see if the word is contained in the dictonary and make sure the word isn't blank and that it's not a nonbreaking space (we need to clean the word before we can see if it's in the dictonary)
 				echo "$word ";//if it's in the dictonary just print the word out
 			}
 			else{//if it's not in the dictonary make the word red
 				echo "\n<span style='background-color:red;' note='".clean_word($word)."'>$word</span> \n";
+				$misspelled[]=$word;//record the list of words that aren't speled right
 			}
 		}
 		
-	}else{//if it's a line that's not a text line just print it 
+	}else if(trim($line)=="</body>"){// find the end of the page and print the list of misspelled words
+		echo "<h3>Misspelled Words:</h3>\n<p>";
+		foreach($misspelled as &$mword){
+			echo "$mword, ";
+		}
+		echo "</p>\n</body>";	
+	}else if(substr($line,0,3)=="<a "){//if a line contains a link rework it to always stay inside the spellchecker
+ 		$line = str_replace('href="','href="'.$spell_check_base_url,$line);//add this page's url to make you stay inside the link checker as you click around the page
+ 		echo "\n".$line."\n";
+  	}else{//if it's a line that's not a text line just print it 
 		echo "\n".$line."\n";
 	}
 
