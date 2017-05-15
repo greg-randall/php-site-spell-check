@@ -7,28 +7,19 @@ $url=$_GET["p"]; // gets the page passed through the url
 
 $page = file_get_contents ($url); //gets the requested url
 
-
-
 //this is a little bit of a goofy way to do this but it works
 //basically we want all the text on their own lines and all the html stuff on their own lines
 //with one html item per line
 $page=preg_replace( "/\r|\n/", "", $page);//get rid of all the line breaks in the page
 $page=preg_replace( "/\s+/", " ", $page);//replace many linebreaks/spaces/etc with one space
 $page=str_replace(array(">","<"),array(">\n","\n<"),$page);//make sure there's a linebreak before and after all html 
-//$page=preg_replace( "/>[\s\n\r]+</", "><", $page);
 $page=str_replace("\n ","\n",$page);//get rid of leading spaces on lines
 
 $lines=explode("\n",$page);//split the page up into seperate lines
 
 foreach ($lines as &$line) {//go through each line one at a time
 	
-	//rewrite urls
-	if(substr($line,0,3)=="<a "){//if a line contains a link rework it
-		if(!strstr($line,'href="http')){//if a line is a relative link (ie href="asdf/qwer/ ) 
-			$line = str_replace('href="','note="relative-link" href="'.$url.'',$line);//add the requested url for the site to the link to create an absolute link
-		}
-		$line = str_replace('href="','href="'.$spell_check_base_url,$line);//add this page's url to make you stay inside the link checker as you click around the page
-	}
+	$line=preg_replace('#(href|src)="([^:"]*)(?:")#',"$1=\"$url/$2\"",$line); //make all relataive links absolute
 	
 	//if a line stars with a less than it's a line of text
 	if($line[0]!="<"&&substr($line,0,3)!="-->"){
@@ -44,8 +35,12 @@ foreach ($lines as &$line) {//go through each line one at a time
 		
 	}else{//if it's a line that's not a text line just print it 
 		echo "\n".$line."\n";
-	}			
+	}
+
 }
+
+
+
 
 
 function clean_word($word){//the dictonary needs a cleaning step
@@ -53,7 +48,7 @@ function clean_word($word){//the dictonary needs a cleaning step
 	$clean_word=strtoupper($word); //make string uppercase
 	$clean_word=trim($clean_word); //remove leading/trailing whitespace
 	if(!ctype_alnum(substr($clean_word,-2,1))&&substr($clean_word,-1,1)=="S"){//if word has apostophie and a 's' (ie your's) drop those charecters
-		$clean_word=substr($clean_word,0,-2);//remove apostropie and the 's' 
+		$clean_word=substr($clean_word,0,-2);//remove apostropie and the 's'
 	}
 	$clean_word=html_entity_decode($clean_word); //decode the html encoded stuff to regular letters (ie &nbsp; to " ")
 	$clean_word=preg_replace("/[^\w]/", '', $clean_word); //remove all non letters
