@@ -1,5 +1,13 @@
 <?php
-include 'dict.php'; // array called $dictionary.
+include 'dict.php'; // array called $dictionary. this file of words is from here: http://norvig.com/google-books-common-words.txt . read a little about the methodology of that list http://norvig.com/mayzner.html 
+
+//add custom dictonary option. add one per line of a text file called 'custom-dict.txt'
+$custom=explode(PHP_EOL,file_get_contents('custom-dict.txt'));//get the custom dictonary, and explode line by line
+foreach ($custom as &$cword){ //loop through all lines
+	$custom_dict[clean_word($cword)]=1; //add words to the custom dictonary after cleaning them to the same standard as the big dictonary. 
+}
+
+
 
 $spell_check_base_url="http://localhost:8888/spell-check/index.php?p="; //base url that you access the spell chececker from ie the directory that you have uploaded it to
 
@@ -36,7 +44,7 @@ foreach ($lines as &$line) {//go through each line one at a time
 	if($line[0]!="<"&&substr($line,0,3)!="-->"&&$script==false){
 		$words=explode(" ",$line);//spit the line into an array of words
 		foreach ($words as &$word) {//look at each word in turn
-			if(isset($dict[clean_word($word)])|clean_word($word)==""|clean_word($word)=="NBSP"){//see if the word is contained in the dictonary and make sure the word isn't blank and that it's not a nonbreaking space (we need to clean the word before we can see if it's in the dictonary)
+			if(isset($dict[clean_word($word)])|isset($custom_dict[clean_word($word)])|clean_word($word)==""|clean_word($word)=="NBSP"){//see if the word is contained in the dictonary and make sure the word isn't blank and that it's not a nonbreaking space (we need to clean the word before we can see if it's in the dictonary)
 				echo "$word ";//if it's in the dictonary just print the word out
 			}
 			else{//if it's not in the dictonary make the word red
@@ -46,6 +54,7 @@ foreach ($lines as &$line) {//go through each line one at a time
 		}
 		
 	}else if(trim($line)=="</body>"){// find the end of the page and print the list of misspelled words
+		$misspelled=array_unique($misspelled);//gets rid of duplicates
 		echo "<h3>Misspelled Words:</h3>\n<p>";
 		foreach($misspelled as &$mword){
 			echo "$mword, ";
