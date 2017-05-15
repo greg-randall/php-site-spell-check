@@ -54,10 +54,10 @@ foreach ($lines as &$line) {//go through each line one at a time
 		}
 		
 	}else if(trim($line)=="</body>"){// find the end of the page and print the list of misspelled words
-		$misspelled=array_unique($misspelled);//gets rid of duplicates
+		$misspelled=array_values(array_unique($misspelled));//gets rid of duplicates
 		echo "<h3>Misspelled Words:</h3>\n<p>";
 		foreach($misspelled as &$mword){
-			echo "$mword, ";
+			echo rtrim($mword, ',').', ';
 		}
 		echo "</p>\n</body>";	
 	}else if(substr($line,0,3)=="<a "){//if a line contains a link rework it to always stay inside the spellchecker
