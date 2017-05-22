@@ -42,6 +42,7 @@ foreach ($lines as &$line) {//go through each line one at a time
 	
 	//if a line doesnt start with a less than it's a line of text, also make sure we're not in a script
 	if($line[0]!="<"&&substr($line,0,3)!="-->"&&$script==false){
+        $line=str_replace("-","- ",$line); //dictonary doesn't contain hyphenated things like "world-wide" adds a space so that the two words get spell checked seperately. 
 		$words=explode(" ",$line);//spit the line into an array of words
 		foreach ($words as &$word) {//look at each word in turn
 			if(isset($dict[clean_word($word)])|isset($custom_dict[clean_word($word)])|clean_word($word)==""|clean_word($word)=="NBSP"){//see if the word is contained in the dictonary and make sure the word isn't blank and that it's not a nonbreaking space (we need to clean the word before we can see if it's in the dictonary)
