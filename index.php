@@ -1,6 +1,6 @@
 <?php
 
-    $spell_check_base_url = "http://localhost:8888/spell-check/index.php?p="; //base url that you access the spell chececker from ie the directory that you have uploaded it to
+    $spell_check_base_url = strtok('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], '?') . "?p="; //base url. gets the current page's url. strips off the url's parameters and then adds back the blank prameter we want
 
 
     include 'dict.php'; // array called $dictionary. this file of words is from here: http://norvig.com/google-books-common-words.txt . read a little about the methodology of that list http://norvig.com/mayzner.html
