@@ -1,5 +1,10 @@
 <?php
 
+    if(!isset($_GET["p"])|$_GET["p"]==""){ //check to see if the url is set. if not set prompts for a url. 
+        echo "Check URL:</h3>\n<form action=\"index.php\" method=\"get\"><input type=\"text\" name=\"p\" value=\"http://\" size=\"100\" style=\"margin-bottom:10px;\"><br><input type=\"submit\"></form>";
+        exit();
+    }
+
     $spell_check_base_url = strtok('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], '?') . "?p="; //base url. gets the current page's url. strips off the url's parameters and then adds back the blank prameter we want
 
 
