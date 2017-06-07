@@ -18,7 +18,7 @@
 
     $url = $_GET["p"]; // gets the page passed through the url
     $page = file_get_contents($url); //gets the requested url
-    $script = false; //remeber's if we're in a seciton of script or style and ignores it
+    $script = false; //remebers if we're in a seciton of script or style and ignores it
 
 
     // this is a little bit of a goofy way to do this but it works
